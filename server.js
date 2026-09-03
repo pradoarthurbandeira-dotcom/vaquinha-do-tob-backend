@@ -28,7 +28,12 @@ app.use('/api/usuarios', require('./routes/usuarios'));
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Servidor funcionando!' });
+  res.json({ 
+    status: 'OK', 
+    message: 'Servidor funcionando!',
+    timestamp: new Date().toISOString(),
+    pix: process.env.PIX_KEY
+  });
 });
 
 // Erro 404
@@ -36,10 +41,19 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Rota não encontrada' });
 });
 
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: err.message || 'Erro interno do servidor' });
+});
+
 // Iniciar servidor
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`📊 Ambiente: ${process.env.NODE_ENV}`);
+  console.log(`🔑 Pix Key: ${process.env.PIX_KEY}`);
+  console.log(`💾 MongoDB: ${process.env.MONGODB_URI ? 'Conectando...' : 'Local'}`);
 });
 
 module.exports = app;
